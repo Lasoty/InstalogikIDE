@@ -9,6 +9,9 @@ public partial class Home
     const string STEPS_ZONE = "Edytor";
     const string LIST_ZONE = "Instrukcje";
 
+    private bool alertClosed;
+    private bool isLoaded;
+
     private MudDropContainer<Instruction> _dropContainer;
 
     private List<Box> _boxes =
@@ -37,6 +40,21 @@ public partial class Home
         new IfInstruction(LIST_ZONE),
         new LoadInstruction(LIST_ZONE)
     ];
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isLoaded = true;
+            StateHasChanged();
+        }
+    }
+
+    //protected override Task OnInitializedAsync()
+    //{
+    //    isLoaded = true;
+    //    return Task.CompletedTask;
+    //}
 
     private void ItemUpdated(MudItemDropInfo<Instruction> dropItem)
     {
