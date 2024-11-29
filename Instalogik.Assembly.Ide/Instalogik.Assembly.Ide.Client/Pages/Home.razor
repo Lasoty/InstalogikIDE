@@ -1,0 +1,158 @@
+﻿@page "/"
+@using Instalogik.Assembly.Ide.Client.Model
+
+<PageTitle>IDE</PageTitle>
+
+<MudDropContainer @ref="@_dropContainer" Class="ma-4" T="Instruction" Items="_items" ItemsSelector="@((item, dropzone) => item.Zone == dropzone)" ItemDropped="ItemUpdated">
+    <ChildContent>
+        <MudGrid>
+            <MudItem xs="9">
+                <MudCard>
+                    <MudCardHeader Style="background-color: aliceblue">
+                        <MudText Color="Color.Info" Typo="Typo.h5">
+                            @_zones[0].Name
+                        </MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudDropZone T="Instruction" Identifier="@_zones[0].Name" AllowReorder Class="card-editor rounded mud-background-gray px-4 py-1" />
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="3">
+                <MudCard>
+                    <MudCardHeader Style="background-color: aliceblue">
+                        <MudText Color="Color.Info" Typo="Typo.h5">
+                            @_zones[1].Name
+                        </MudText>
+                    </MudCardHeader>
+                    <MudCardContent Style="min-height: 8em;">
+                        <MudDropZone T="Instruction" AllowReorder="false" Identifier="@_zones[1].Name" CanDrop="_ => false"
+                                     Class="rounded mud-background-gray px-4 py-1 ma-0" />
+
+                        <MudButton Class="mt-16" Color="Color.Success" FullWidth Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.PlayArrow">Uruchom</MudButton>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </ChildContent>
+    <ItemRenderer>
+        @if (context.Zone == LIST_ZONE)
+        {
+            <MudPaper Class="pa-4 my-2">
+                <MudText>@context.Name</MudText>
+            </MudPaper>
+        }
+        else
+        {
+            <MudPaper Class="d-flex align-center justify-space-between flex-grow-1 gap-4 pa-4 my-2" Elevation="10">
+                <MudPaper Class="d-flex align-center justify-start gap-4" Height="2em" Elevation="0" Style="background-color: transparent">
+                    <MudText Typo="Typo.body1">@context.Name</MudText>
+                    @switch (context)
+                    {
+                        case PrintBoxInstruction:
+                            <MudSelect @bind-Value="@(((PrintBoxInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
+                                @foreach (var box in _boxes)
+                                {
+                                    <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                            break;
+                        case PrintTextInstruction:
+                            <MudTextField @bind-Value="@(((PrintTextInstruction)context).Text)" 
+                                          Clearable="true" Adornment="Adornment.End" 
+                                          Variant="Variant.Text" />
+                            break;
+                        case NewLineInstruction:
+                            break;
+                        case LoadInstruction:
+                            <MudSelect @bind-Value="@(((LoadInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
+                                @foreach (var box in _boxes)
+                                {
+                                    <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                            break;
+                        case SetInstruction:
+                            <MudSelect @bind-Value="@(((SetInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
+                                @foreach (var box in _boxes)
+                                {
+                                    <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudText Typo="Typo.body1">na</MudText>
+                            <MudTextField @bind-Value="@(((SetInstruction)context).Value)" Clearable="true"
+                                          Adornment="Adornment.End" Variant="Variant.Text" />
+                            break;
+                        case IncrementInstruction:
+                            <MudSelect @bind-Value="@(((IncrementInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
+                                @foreach (var box in _boxes)
+                                {
+                                    <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudText Typo="Typo.body1">o</MudText>
+                            <MudTextField @bind-Value="@(((IncrementInstruction)context).Value)" Clearable="true"
+                                          Adornment="Adornment.End" Variant="Variant.Text" />
+                            break;
+                        case DecrementInstruction:
+                            <MudSelect @bind-Value="@(((DecrementInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
+                                @foreach (var box in _boxes)
+                                {
+                                    <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudText Typo="Typo.body1">o</MudText>
+                            <MudTextField @bind-Value="@(((DecrementInstruction)context).Value)" Clearable="true"
+                                          Adornment="Adornment.End" Variant="Variant.Text" />
+                            break;
+                        case IfInstruction:
+                            <MudSelect @bind-Value="@(((IfInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
+                                @foreach (var box in _boxes)
+                                {
+                                    <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudSelect @bind-Value="@(((IfInstruction)context).Operator)" Variant="Variant.Text" Style="max-width: 77px">
+                                @foreach (var op in (string[])["<", "<=", "=", "!=", ">=", ">"])
+                                {
+                                    <MudSelectItem Value="op">@op</MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudTextField @bind-Value="@(((IfInstruction)context).Value)" Clearable="true"
+                                          Style="max-width: 80px"
+                                          Adornment="Adornment.End" Variant="Variant.Text" />
+                            <MudText Typo="Typo.body1">skocz do</MudText>
+                            <MudSelect @bind-Value="@(((IfInstruction)context).JumpIfTrue)" Variant="Variant.Text" Style="width: 110px">
+                                @foreach (var box in GetJumpSteps(true))
+                                {
+                                    <MudSelectItem Value="box">@box</MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudText Typo="Typo.body1">inaczej skocz do</MudText>
+                            <MudSelect @bind-Value="@(((IfInstruction)context).JumpIfFalse)" Variant="Variant.Text" Style="width: 110px">
+                                @foreach (var box in GetJumpSteps(true))
+                                {
+                                    <MudSelectItem Value="box">@box</MudSelectItem>
+                                }
+                            </MudSelect>
+                            break;
+                        case JumpInstruction:
+                            <MudSelect @bind-Value="@(((JumpInstruction)context).Step)" Variant="Variant.Text" Style="width: 150px">
+                                @foreach (var box in GetJumpSteps())
+                                {
+                                    <MudSelectItem Value="box">@box</MudSelectItem>
+                                }
+                            </MudSelect>
+                            break;
+
+                    }
+                </MudPaper>
+                <MudPaper Class="d-flex justify-end flex-grow-1 gap-4" Elevation="0" Style="background-color: transparent">
+                    <MudChip T="int" Color="Color.Dark">@context.Step</MudChip>
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" aria-label="delete" />
+                </MudPaper>
+            </MudPaper>
+        }
+    </ItemRenderer>
+</MudDropContainer>
