@@ -1,4 +1,6 @@
-﻿namespace Instalogik.Assembly.Ide.Client.Model;
+﻿using MudBlazor;
+
+namespace Instalogik.Assembly.Ide.Client.Model;
 
 public abstract class Instruction
 {
@@ -11,9 +13,12 @@ public abstract class Instruction
     public Guid Id { get; init; }
 
     public string Zone { get; set; }
+
     public string Name { get; init; }
 
     public int Step { get; set; }
+
+    public string Background { get; set; } = Colors.BlueGray.Lighten5;
 
     public abstract object CopyTo(string zone);
 }
