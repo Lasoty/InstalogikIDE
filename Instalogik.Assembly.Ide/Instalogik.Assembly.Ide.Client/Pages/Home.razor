@@ -18,7 +18,7 @@ else
                     <MudItem xs="9">
                         <MudCard>
                             <MudCardHeader Style="@($"background:{Colors.LightBlue.Accent3};")">
-                                <MudText Typo="Typo.h5" Style="color: white;">@_zones[0].Name</MudText>
+                                <MudText Typo="Typo.h5" Style="color: white;">@STEPS_ZONE</MudText>
                             </MudCardHeader>
                             <MudCardContent>
                                 @if (!alertClosed)
@@ -26,7 +26,7 @@ else
                                     <MudAlert Severity="Severity.Info" Variant="Variant.Filled"
                                               ShowCloseIcon="true" CloseIconClicked="(() => alertClosed = true)">Przeciągnij i upuść instrukcje poniżej.</MudAlert>
                                 }
-                                <MudDropZone T="Instruction" Identifier="@_zones[0].Name" AllowReorder Class="card-editor rounded mud-background-gray px-4 py-1" />
+                                <MudDropZone T="Instruction" Identifier="@STEPS_ZONE" AllowReorder Class="card-editor rounded mud-background-gray px-4 py-1" />
                             </MudCardContent>
                         </MudCard>
                     </MudItem>
@@ -34,10 +34,10 @@ else
                     <MudItem xs="3">
                         <MudCard>
                             <MudCardHeader Style="@($"background:{Colors.LightBlue.Accent3};")">
-                                <MudText Typo="Typo.h5" Style="color: white;">@_zones[1].Name</MudText>
+                                <MudText Typo="Typo.h5" Style="color: white;">@LIST_ZONE</MudText>
                             </MudCardHeader>
                             <MudCardContent Style="min-height: 8em;">
-                                <MudDropZone T="Instruction" AllowReorder="false" Identifier="@_zones[1].Name" CanDrop="_ => false"
+                                <MudDropZone T="Instruction" AllowReorder="false" Identifier="@LIST_ZONE" CanDrop="_ => false"
                                              Class="rounded mud-background-gray px-4 py-1 ma-0" />
 
                                 <MudButton Class="mt-16"
@@ -193,7 +193,7 @@ else
                             }
                         </MudPaper>
                         <MudPaper Class="d-flex justify-end flex-grow-1 gap-4" Elevation="0" Style="background-color: transparent">
-                            <MudChip T="int" Color="Color.Dark">@context.Step</MudChip>
+                            <MudChip T="int" Color="Color.Dark">@(context.Step - InitializeCount)</MudChip>
                             <MudIconButton Icon="@Icons.Material.Filled.Close" aria-label="delete" OnClick="_ => DeleteItem(context)" />
                         </MudPaper>
                     </MudPaper>

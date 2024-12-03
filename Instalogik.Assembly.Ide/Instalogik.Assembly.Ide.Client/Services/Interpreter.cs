@@ -204,15 +204,15 @@ public class Interpreter
 
     private void Jump(JumpInstruction instruction)
     {
-        if (instruction.Step.Equals("końca", StringComparison.InvariantCultureIgnoreCase))
+        if (instruction.StepTo.Equals("końca", StringComparison.InvariantCultureIgnoreCase))
         {
             SetInstruction(_instructions.Last());
         }
-        else if (instruction.Step.Equals("następnej", StringComparison.InvariantCultureIgnoreCase))
+        else if (instruction.StepTo.Equals("następnej", StringComparison.InvariantCultureIgnoreCase))
         {
             SetInstruction(_instructions.First(i => i.Step == _currentInstruction.Step++));
         }
-        else if (int.TryParse(instruction.Step, out int step))
+        else if (int.TryParse(instruction.StepTo, out int step))
         {
             SetInstruction(_instructions.FirstOrDefault(i => i.Step == step));
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using Instalogik.Assembly.Ide.Client.Model;
 using Instalogik.Assembly.Ide.Client.Services;
 using MudBlazor;
@@ -30,12 +31,6 @@ public partial class Home
         new("D"),
     ];
 
-    private List<DropZone> _zones =
-    [
-        new() { Name = STEPS_ZONE },
-        new() { Name = LIST_ZONE }
-    ];
-
     private List<Instruction> _items =
     [
         new PrintBoxInstruction(LIST_ZONE),
@@ -48,6 +43,8 @@ public partial class Home
         new IfInstruction(LIST_ZONE),
         new JumpInstruction(LIST_ZONE)
     ];
+
+    private int InitializeCount => _items.Count;
 
     private ObservableCollection<KonsoleItemArgs> Konsole = [];
 
@@ -79,14 +76,33 @@ public partial class Home
 
     private void ItemUpdated(MudItemDropInfo<Instruction> dropItem)
     {
-        if (dropItem.DropzoneIdentifier == _zones[0].Name && dropItem.Item.Zone == _zones[1].Name)
+        if (dropItem.DropzoneIdentifier == STEPS_ZONE && dropItem.Item.Zone == LIST_ZONE)
         {
             Instruction item = dropItem.Item.CopyTo(STEPS_ZONE) as Instruction;
-            _items.Insert(dropItem.IndexInZone + 9, item);
+            item.Zone = dropItem.DropzoneIdentifier;
+            item.Step = _items.Count(x => x.Zone == STEPS_ZONE) + 1 + InitializeCount;
+            _items.Add(item);
         }
         else
         {
-            dropItem.Item.Zone = dropItem.DropzoneIdentifier;
+            var tempList1 = _items.Where(x => x.Step < dropItem.IndexInZone + InitializeCount + 1);
+            var tempList2 = _items.Where(x => x.Step > dropItem.IndexInZone + InitializeCount + 1);
+
+            tempList1 = tempList1.Select((x, i) =>
+            {
+                x.Step = i + 1 + InitializeCount;
+                return x;
+            });
+
+            tempList2 = tempList2.Select((x, i) =>
+            {
+                x.Step = i + tempList1.Count() + 2 + InitializeCount;
+                return x;
+            });
+
+
+            dropItem.Item.Step = dropItem.IndexInZone + InitializeCount + 1;
+            _items = tempList1.Concat([dropItem.Item]).Concat(tempList2).ToList();
         }
 
         RefreshDropZone();
@@ -94,18 +110,13 @@ public partial class Home
 
     private void RefreshDropZone()
     {
-        for (int i = 9; i < _items.Count; i++)
-        {
-            _items[i].Step = i - 8;
-        }
-
-        _dropContainer.Items = _items;
-
-        ThreadPool.QueueUserWorkItem(_ =>
-        {
-            _dropContainer.Refresh();
-            StateHasChanged();
-        });
+        //int i = 1;
+        //foreach (Instruction item in _items.Where(item => item.Zone != LIST_ZONE))
+        //{
+        //    item.Step = InitializeCount + i++;
+        //}
+        _items = _items.OrderBy(x => x.Step).ToList();
+        StateHasChanged();
     }
 
     private List<string> GetJumpSteps(bool withNext = false)
@@ -119,14 +130,16 @@ public partial class Home
 
     private async Task DeleteItem(Instruction item)
     {
-        Instruction? localItem = _items.FirstOrDefault(x => x.Id == item.Id);
+        _items = _items.Where(x => x.Id != item.Id).ToList();
 
-        if (localItem != null)
-        {
-            _items.Remove(localItem);
-            StateHasChanged();
-            RefreshDropZone();
-        }
+
+
+        //Instruction? localItem = _items.FirstOrDefault(x => x.Id == item.Id);
+
+        //if (localItem != null)
+        //{
+        //    _items.Remove(localItem);
+        RefreshDropZone();
     }
 
     private async Task RunProgram()
