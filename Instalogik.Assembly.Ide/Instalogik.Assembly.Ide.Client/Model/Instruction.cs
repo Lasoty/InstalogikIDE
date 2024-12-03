@@ -54,6 +54,9 @@ public class NewLineInstruction : Instruction
     public override object CopyTo(string zone) => new NewLineInstruction(zone);
 }
 
+/// <summary>
+/// Wczytaj wartość
+/// </summary>
 public class LoadInstruction : Instruction
 {
     public LoadInstruction(string zone) : base(zone)

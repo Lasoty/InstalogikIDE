@@ -38,7 +38,7 @@ else
                             </MudCardHeader>
                             <MudCardContent Style="min-height: 8em;">
                                 <MudDropZone T="Instruction" AllowReorder="false" Identifier="@_zones[1].Name" CanDrop="_ => false"
-                                             Class="rounded mud-background-gray px-4 py-1 ma-0"/>
+                                             Class="rounded mud-background-gray px-4 py-1 ma-0" />
 
                                 <MudButton Class="mt-16"
                                            Color="Color.Success"
@@ -66,99 +66,128 @@ else
                             @switch (context)
                             {
                                 case PrintBoxInstruction:
-                                    <MudSelect @bind-Value="@(((PrintBoxInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
-                                        @foreach (var box in _boxes)
-                                        {
-                                            <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
-                                        }
-                                    </MudSelect>
+                                    <MudTooltip Placement="Placement.Top" Text="Wybierz pudełko">
+                                        <MudSelect @bind-Value="@(((PrintBoxInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
+                                            @foreach (var box in _boxes)
+                                            {
+                                                <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </MudTooltip>
                                     break;
                                 case PrintTextInstruction:
-                                    <MudTextField @bind-Value="@(((PrintTextInstruction)context).Text)"
-                                                  Clearable="true" Adornment="Adornment.End"
-                                                  Variant="Variant.Text" />
+                                    <MudTooltip Placement="Placement.Top" Text="Wpisz tekst do wyświetlenia">
+                                        <MudTextField @bind-Value="@(((PrintTextInstruction)context).Text)"
+                                                      Clearable="true" Adornment="Adornment.End"
+                                                      Variant="Variant.Text" />
+                                    </MudTooltip>
                                     break;
                                 case NewLineInstruction:
                                     break;
                                 case LoadInstruction:
-                                    <MudSelect @bind-Value="@(((LoadInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
-                                        @foreach (var box in _boxes)
-                                        {
-                                            <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
-                                        }
-                                    </MudSelect>
+                                    <MudTooltip Placement="Placement.Top" Text="Wybierz pudełko, do którego wpiszesz liczbę">
+                                        <MudSelect @bind-Value="@(((LoadInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
+                                            @foreach (var box in _boxes)
+                                            {
+                                                <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </MudTooltip>
                                     break;
                                 case SetInstruction:
-                                    <MudSelect @bind-Value="@(((SetInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
-                                        @foreach (var box in _boxes)
-                                        {
-                                            <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
-                                        }
-                                    </MudSelect>
+                                    <MudTooltip Placement="Placement.Top" Text="Wybierz pudełko, do którego zapiszesz wartość.">
+                                        <MudSelect @bind-Value="@(((SetInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
+                                            @foreach (var box in _boxes)
+                                            {
+                                                <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </MudTooltip>
                                     <MudText Typo="Typo.body1">na</MudText>
-                                    <MudTextField @bind-Value="@(((SetInstruction)context).Value)" Clearable="true"
-                                                  Adornment="Adornment.End" Variant="Variant.Text" />
+                                    <MudTooltip Placement="Placement.Top" Text="Wpisz nazwę pudełka (A,B,C,D) lub wartość, którą chcesz zapisać">
+                                        <MudTextField @bind-Value="@(((SetInstruction)context).Value)" Clearable="true" Adornment="Adornment.End" Variant="Variant.Text" />
+                                    </MudTooltip>
                                     break;
                                 case IncrementInstruction:
-                                    <MudSelect @bind-Value="@(((IncrementInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
-                                        @foreach (var box in _boxes)
-                                        {
-                                            <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
-                                        }
-                                    </MudSelect>
+                                    <MudTooltip Placement="Placement.Top" Text="Wybierz pudełko, któremu chcesz zwiększyć wartość.">
+                                        <MudSelect @bind-Value="@(((IncrementInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
+                                            @foreach (var box in _boxes)
+                                            {
+                                                <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </MudTooltip>
                                     <MudText Typo="Typo.body1">o</MudText>
-                                    <MudTextField @bind-Value="@(((IncrementInstruction)context).Value)" Clearable="true"
-                                                  Adornment="Adornment.End" Variant="Variant.Text" />
+                                    <MudTooltip Placement="Placement.Top" Text="Wpisz nazwę pudełka (A,B,C,D) lub wartość, o którą chcesz zwiększyć wybrane pudełko">
+                                        <MudTextField @bind-Value="@(((IncrementInstruction)context).Value)" Clearable="true"
+                                                      Adornment="Adornment.End" Variant="Variant.Text" />
+                                    </MudTooltip>
                                     break;
                                 case DecrementInstruction:
-                                    <MudSelect @bind-Value="@(((DecrementInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
-                                        @foreach (var box in _boxes)
-                                        {
-                                            <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
-                                        }
-                                    </MudSelect>
+                                    <MudTooltip Placement="Placement.Top" Text="Wybierz pudełko, któremu chcesz zmniejszyć wartość.">
+                                        <MudSelect @bind-Value="@(((DecrementInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
+                                            @foreach (var box in _boxes)
+                                            {
+                                                <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </MudTooltip>
                                     <MudText Typo="Typo.body1">o</MudText>
-                                    <MudTextField @bind-Value="@(((DecrementInstruction)context).Value)" Clearable="true"
-                                                  Adornment="Adornment.End" Variant="Variant.Text" />
+                                    <MudTooltip Placement="Placement.Top" Text="Wpisz nazwę pudełka (A,B,C,D) lub wartość, o którą chcesz zmniejszyć wybrane pudełko">
+                                        <MudTextField @bind-Value="@(((DecrementInstruction)context).Value)" Clearable="true"
+                                                      Adornment="Adornment.End" Variant="Variant.Text" />
+                                    </MudTooltip>
                                     break;
                                 case IfInstruction:
-                                    <MudSelect @bind-Value="@(((IfInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
-                                        @foreach (var box in _boxes)
-                                        {
-                                            <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
-                                        }
-                                    </MudSelect>
-                                    <MudSelect @bind-Value="@(((IfInstruction)context).Operator)" Variant="Variant.Text" Style="max-width: 77px">
-                                        @foreach (var op in (string[])["<", "\u2264", "=", "\u2260", "\u2265", ">"])
-                                        {
-                                            <MudSelectItem Value="op">@op</MudSelectItem>
-                                        }
-                                    </MudSelect>
-                                    <MudTextField @bind-Value="@(((IfInstruction)context).Value)" Clearable="true"
-                                                  Style="max-width: 80px"
-                                                  Adornment="Adornment.End" Variant="Variant.Text" />
+                                    <MudTooltip Placement="Placement.Top" Text="Wybierz pudełko.">
+                                        <MudSelect @bind-Value="@(((IfInstruction)context).Box)" Variant="Variant.Text" Style="max-width: 64px">
+                                            @foreach (var box in _boxes)
+                                            {
+                                                <MudSelectItem Value="box.Name">@box.Name</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </MudTooltip>
+                                    <MudTooltip Placement="Placement.Top" Text="Wybierz rodzaj porównania.">
+                                        <MudSelect @bind-Value="@(((IfInstruction)context).Operator)" Variant="Variant.Text" Style="max-width: 77px">
+                                            @foreach (var op in (string[])["<", "\u2264", "=", "\u2260", "\u2265", ">"])
+                                            {
+                                                <MudSelectItem Value="op">@op</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </MudTooltip>
+                                    <MudTooltip Placement="Placement.Top" Text="Wpisz nazwę pudełka (A,B,C,D) lub wartość do porównania.">
+                                        <MudTextField @bind-Value="@(((IfInstruction)context).Value)" Clearable="true"
+                                                      Style="max-width: 80px"
+                                                      Adornment="Adornment.End" Variant="Variant.Text" />
+                                    </MudTooltip>
                                     <MudText Typo="Typo.body1">skocz do</MudText>
-                                    <MudSelect @bind-Value="@(((IfInstruction)context).JumpIfTrue)" Variant="Variant.Text" Style="width: 110px">
-                                        @foreach (var box in GetJumpSteps(true))
-                                        {
-                                            <MudSelectItem Value="box">@box</MudSelectItem>
-                                        }
-                                    </MudSelect>
+                                    <MudTooltip Placement="Placement.Top" Text="Wybierz instrukcję do której przejdziesz w przypadku kiedy porównanie jest prawdą.">
+                                        <MudSelect @bind-Value="@(((IfInstruction)context).JumpIfTrue)" Variant="Variant.Text" Style="width: 110px">
+                                            @foreach (var box in GetJumpSteps(true))
+                                            {
+                                                <MudSelectItem Value="box">@box</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </MudTooltip>
                                     <MudText Typo="Typo.body1">inaczej skocz do</MudText>
-                                    <MudSelect @bind-Value="@(((IfInstruction)context).JumpIfFalse)" Variant="Variant.Text" Style="width: 110px">
-                                        @foreach (var box in GetJumpSteps(true))
-                                        {
-                                            <MudSelectItem Value="box">@box</MudSelectItem>
-                                        }
-                                    </MudSelect>
+                                    <MudTooltip Placement="Placement.Top" Text="Wybierz instrukcję do której przejdziesz w przypadku kiedy porównanie jest nieprawdą.">
+                                        <MudSelect @bind-Value="@(((IfInstruction)context).JumpIfFalse)" Variant="Variant.Text" Style="width: 110px">
+                                            @foreach (var box in GetJumpSteps(true))
+                                            {
+                                                <MudSelectItem Value="box">@box</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </MudTooltip>
                                     break;
                                 case JumpInstruction:
-                                    <MudSelect @bind-Value="@(((JumpInstruction)context).Step)" Variant="Variant.Text" Style="width: 150px">
-                                        @foreach (var box in GetJumpSteps())
-                                        {
-                                            <MudSelectItem Value="box">@box</MudSelectItem>
-                                        }
-                                    </MudSelect>
+                                    <MudTooltip Placement="Placement.Top" Text="Wybierz instrukcję do której przejdziesz.">
+                                        <MudSelect @bind-Value="@(((JumpInstruction)context).Step)" Variant="Variant.Text" Style="width: 150px">
+                                            @foreach (var box in GetJumpSteps())
+                                            {
+                                                <MudSelectItem Value="box">@box</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </MudTooltip>
                                     break;
 
                             }

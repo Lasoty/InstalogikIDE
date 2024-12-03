@@ -157,10 +157,12 @@ public class Interpreter
         if (_boxes.Keys.Contains(instruction.Value))
         {
             _boxes[instruction.Box] = _boxes[instruction.Value];
+            BoxChanged.Invoke(this, new BoxChangedArgs(instruction.Box, _boxes[instruction.Box]));
         }
         else if (int.TryParse(instruction.Value, out int value))
         {
             _boxes[instruction.Box] = value;
+            BoxChanged.Invoke(this, new BoxChangedArgs(instruction.Box, value));
         }
         else
         {
