@@ -2,31 +2,31 @@
 @using Instalogik.Assembly.Ide.Client.Model
 
 <PageTitle>IDE</PageTitle>
-@if (!isLoaded)
+@if (!_isLoaded)
 {
     <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="@true" />
     </div>
 }
 else
 {
     @if (!_isRunning)
     {
-        <MudDropContainer @ref="@_dropContainer" Class="ma-4" T="Instruction" Items="_items" ItemsSelector="@((item, dropzone) => item.Zone == dropzone)" ItemDropped="ItemUpdated">
+        <MudDropContainer @ref="@_dropContainer" Class="ma-4" T="Instruction" Items="Items" ItemsSelector="@((item, dropzone) => item.Zone == dropzone)" ItemDropped="ItemUpdated">
             <ChildContent>
                 <MudGrid>
                     <MudItem xs="9">
                         <MudCard>
                             <MudCardHeader Style="@($"background:{Colors.LightBlue.Accent3};")">
-                                <MudText Typo="Typo.h5" Style="color: white;">@STEPS_ZONE</MudText>
+                                <MudText Typo="Typo.h5" Style="color: white;">@OperationsZone</MudText>
                             </MudCardHeader>
                             <MudCardContent>
-                                @if (!alertClosed)
+                                @if (!_alertClosed)
                                 {
                                     <MudAlert Severity="Severity.Info" Variant="Variant.Filled"
-                                              ShowCloseIcon="true" CloseIconClicked="(() => alertClosed = true)">Przeciągnij i upuść instrukcje poniżej.</MudAlert>
+                                              ShowCloseIcon="true" CloseIconClicked="@(() => _alertClosed = true)">Przeciągnij i upuść instrukcje poniżej.</MudAlert>
                                 }
-                                <MudDropZone T="Instruction" Identifier="@STEPS_ZONE" AllowReorder Class="card-editor rounded mud-background-gray px-4 py-1" />
+                                <MudDropZone T="Instruction" Identifier="@OperationsZone" AllowReorder="@true" Class="card-editor rounded mud-background-gray px-4 py-1" />
                             </MudCardContent>
                         </MudCard>
                     </MudItem>
@@ -34,10 +34,10 @@ else
                     <MudItem xs="3">
                         <MudCard>
                             <MudCardHeader Style="@($"background:{Colors.LightBlue.Accent3};")">
-                                <MudText Typo="Typo.h5" Style="color: white;">@LIST_ZONE</MudText>
+                                <MudText Typo="Typo.h5" Style="color: white;">@InstructionsZone</MudText>
                             </MudCardHeader>
                             <MudCardContent Style="min-height: 8em;">
-                                <MudDropZone T="Instruction" AllowReorder="false" Identifier="@LIST_ZONE" CanDrop="_ => false"
+                                <MudDropZone T="Instruction" AllowReorder="@false" Identifier="@InstructionsZone" CanDrop="@(_ => false)"
                                              Class="rounded mud-background-gray px-4 py-1 ma-0" />
 
                                 <MudButton Class="mt-16"
@@ -52,7 +52,7 @@ else
                 </MudGrid>
             </ChildContent>
             <ItemRenderer>
-                @if (context.Zone == LIST_ZONE)
+                @if (context.Zone == InstructionsZone)
                 {
                     <MudPaper Class="pa-4 my-2">
                         <MudText>@context.Name</MudText>
@@ -193,7 +193,7 @@ else
                             }
                         </MudPaper>
                         <MudPaper Class="d-flex justify-end flex-grow-1 gap-4" Elevation="0" Style="background-color: transparent">
-                            <MudChip T="int" Color="Color.Dark">@(context.Step - InitializeCount)</MudChip>
+                            <MudChip T="@int" Color="Color.Dark">@(context.Step - InitializeCount)</MudChip>
                             <MudIconButton Icon="@Icons.Material.Filled.Close" aria-label="delete" OnClick="_ => DeleteItem(context)" />
                         </MudPaper>
                     </MudPaper>
@@ -278,8 +278,10 @@ else
                             <MudAlert Severity="Severity.Error" Variant="Variant.Filled">Program zakończony niepowodzeniem.</MudAlert>
                         }
 
-                        @foreach (var item in _items.Where(i => i.Step > 0))
+                        @{
+                        foreach (var item in Items)
                         {
+                            
                             <MudPaper Style="@($"background:{item.Background};")" Class="d-flex align-center justify-space-between flex-grow-1 gap-4 pa-4 my-2" Elevation="10">
                                 <MudPaper Class="d-flex align-center justify-start gap-4" Height="2em" Elevation="0" Style="background-color: transparent">
                                     <MudText Typo="Typo.body1">@item.Name</MudText>
@@ -289,7 +291,7 @@ else
                                             <MudTextField @bind-Value="@(((PrintBoxInstruction)item).Box)" Variant="Variant.Text" Style="max-width: 16px" Disabled />
                                             break;
                                         case PrintTextInstruction:
-                                            <MudTextField @bind-Value="@(((PrintTextInstruction)item).Text)" Variant="Variant.Text" Style="max-width: auto" Disabled />
+                                            <MudTextField @bind-Value="@(((PrintTextInstruction)item).Text)" Variant="Variant.Text" Style="max-width: fit-content" Disabled />
                                             break;
                                         case NewLineInstruction:
                                             break;
@@ -329,7 +331,7 @@ else
                                     <MudChip T="int" Color="Color.Dark">@item.Step</MudChip>
                                 </MudPaper>
                             </MudPaper>
-                        }
+                        }}
 
                     </MudCardContent>
                 </MudCard>
@@ -341,7 +343,7 @@ else
                         <MudText Typo="Typo.h5" Style="color: white;">Konsola</MudText>
                     </MudCardHeader>
                     <MudCardContent Class="imessage mt-4" Style="width: 95%">
-                        @foreach (var item in Konsole)
+                        @foreach (var item in _konsole)
                         {
                             <p class="@(item.IsInput ? "from-me" : "from-them")"><MudText Typo="Typo.h6">@item.Text</MudText></p>
                         }

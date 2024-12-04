@@ -13,6 +13,8 @@ namespace Instalogik.Assembly.Ide
             builder.Services.AddRazorComponents()
                 .AddInteractiveWebAssemblyComponents();
 
+            builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
+            
             builder.Services.AddMudServices();
             var app = builder.Build();
 

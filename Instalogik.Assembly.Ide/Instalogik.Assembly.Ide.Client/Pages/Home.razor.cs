@@ -2,17 +2,18 @@
 using System.Linq;
 using Instalogik.Assembly.Ide.Client.Model;
 using Instalogik.Assembly.Ide.Client.Services;
+using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
 namespace Instalogik.Assembly.Ide.Client.Pages;
 
 public partial class Home
 {
-    const string STEPS_ZONE = "Edytor";
-    const string LIST_ZONE = "Instrukcje";
+    private const string OperationsZone = "Edytor";
+    private const string InstructionsZone = "Instrukcje";
 
-    private bool alertClosed;
-    private bool isLoaded;
+    private bool _alertClosed;
+    private bool _isLoaded;
     private bool _isRunning;
     private bool _isInputingValue;
     private bool _isFinished;
@@ -21,7 +22,7 @@ public partial class Home
     private int? _inputValue;
     private string? _curentBoxInput;
 
-    private MudDropContainer<Instruction> _dropContainer;
+    private MudDropContainer<Instruction>? _dropContainer;
 
     private List<Box> _boxes =
     [
@@ -31,28 +32,33 @@ public partial class Home
         new("D"),
     ];
 
-    private List<Instruction> _items =
+    private readonly List<Instruction> _instructions =
     [
-        new PrintBoxInstruction(LIST_ZONE),
-        new PrintTextInstruction(LIST_ZONE),
-        new NewLineInstruction(LIST_ZONE),
-        new LoadInstruction(LIST_ZONE),
-        new SetInstruction(LIST_ZONE),
-        new IncrementInstruction(LIST_ZONE),
-        new DecrementInstruction(LIST_ZONE),
-        new IfInstruction(LIST_ZONE),
-        new JumpInstruction(LIST_ZONE)
+        new PrintBoxInstruction(InstructionsZone),
+        new PrintTextInstruction(InstructionsZone),
+        new NewLineInstruction(InstructionsZone),
+        new LoadInstruction(InstructionsZone),
+        new SetInstruction(InstructionsZone),
+        new IncrementInstruction(InstructionsZone),
+        new DecrementInstruction(InstructionsZone),
+        new IfInstruction(InstructionsZone),
+        new JumpInstruction(InstructionsZone)
     ];
+    
+    private List<Instruction> _operations = [];
+    private List<Instruction> Items {get; set;}
+    private int InitializeCount => _instructions.Count;
 
-    private int InitializeCount => _items.Count;
+    private readonly ObservableCollection<KonsoleItemArgs> _konsole = [];
 
-    private ObservableCollection<KonsoleItemArgs> Konsole = [];
+    private Interpreter? _interpreter;
 
-    private Interpreter _interpreter;
-
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
+        await base.OnInitializedAsync();
+        
+        Items = [.._instructions];
+        
         _interpreter = new Interpreter();
         _interpreter.OnConsoleOutput += AddToConsole;
         _interpreter.InputRequired += (_, b) =>
@@ -65,81 +71,101 @@ public partial class Home
 
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {
-            isLoaded = true;
+            _isLoaded = true;
             StateHasChanged();
         }
+        
+    }
+[Inject] public ILogger<Home> Logger { get; set; }
+
+private async Task ItemUpdated(MudItemDropInfo<Instruction> dropItem)
+{
+    ArgumentNullException.ThrowIfNull(dropItem.Item);
+
+    Logger.LogInformation(
+        $"ItemUpdated called with dropItem: {dropItem.Item.Name}, dropzone: {dropItem.DropzoneIdentifier}, index: {dropItem.IndexInZone}, current index: {dropItem.Item.Step}");
+
+    var operation = dropItem.Item.CloneForZone(OperationsZone) as Instruction ?? throw new InvalidOperationException();
+
+    if (IsExistingOperation(dropItem))
+    {
+        UpdateExistingOperation(dropItem, operation);
+    }
+    else if (IsNewOperation(dropItem))
+    {
+        UpdateForNewOperation(operation);
+        _operations.Add(operation);
+    }
+    else
+    {
+        Logger.LogInformation($"Item not added to Operations: {operation.Name}");
+        throw new InvalidOperationException($"Item not added to Operations: {operation.Name}");
     }
 
-    private void ItemUpdated(MudItemDropInfo<Instruction> dropItem)
+    await RefreshDropZone();
+    Logger.LogInformation("Drop zone refreshed");
+}
+
+private void UpdateExistingOperation(MudItemDropInfo<Instruction> item, Instruction secondItem)
+{
+    var dropItem = item.Item;
+    ArgumentNullException.ThrowIfNull(dropItem);
+    
+    var indexOfDropItem = _operations.IndexOf(dropItem);
+    var indexOfToSwitchItem = item.IndexInZone;
+    
+    var firstItem = _operations[indexOfToSwitchItem];
+    
+    _operations[indexOfToSwitchItem] = dropItem;
+    _operations[indexOfDropItem] = firstItem;
+   
+    Logger.LogInformation($"Items switched: {firstItem.Name} and {secondItem.Name}");
+}
+
+private void UpdateForNewOperation(Instruction operation)
+{
+    operation.Step = _operations.Count != 0 ? _operations.Count + 1 : 1;
+    Logger.LogInformation($"Item added to Operations: {operation.Name}, Step: {operation.Step}");
+}
+
+private static bool IsExistingOperation(MudItemDropInfo<Instruction> dropItem)
+{
+    return dropItem.DropzoneIdentifier == OperationsZone && dropItem.Item!.Zone == OperationsZone;
+}
+
+private static bool IsNewOperation(MudItemDropInfo<Instruction> dropItem)
+{
+    return dropItem.DropzoneIdentifier == OperationsZone && dropItem.Item!.Zone == InstructionsZone;
+}
+
+
+    private async Task RefreshDropZone()
     {
-        if (dropItem.DropzoneIdentifier == STEPS_ZONE && dropItem.Item.Zone == LIST_ZONE)
-        {
-            Instruction item = dropItem.Item.CopyTo(STEPS_ZONE) as Instruction;
-            item.Zone = dropItem.DropzoneIdentifier;
-            item.Step = _items.Count(x => x.Zone == STEPS_ZONE) + 1 + InitializeCount;
-            _items.Add(item);
-        }
-        else
-        {
-            var tempList1 = _items.Where(x => x.Step < dropItem.IndexInZone + InitializeCount + 1);
-            var tempList2 = _items.Where(x => x.Step > dropItem.IndexInZone + InitializeCount + 1);
-
-            tempList1 = tempList1.Select((x, i) =>
-            {
-                x.Step = i + 1 + InitializeCount;
-                return x;
-            });
-
-            tempList2 = tempList2.Select((x, i) =>
-            {
-                x.Step = i + tempList1.Count() + 2 + InitializeCount;
-                return x;
-            });
-
-
-            dropItem.Item.Step = dropItem.IndexInZone + InitializeCount + 1;
-            _items = tempList1.Concat([dropItem.Item]).Concat(tempList2).ToList();
-        }
-
-        RefreshDropZone();
-    }
-
-    private void RefreshDropZone()
-    {
-        //int i = 1;
-        //foreach (Instruction item in _items.Where(item => item.Zone != LIST_ZONE))
-        //{
-        //    item.Step = InitializeCount + i++;
-        //}
-        _items = _items.OrderBy(x => x.Step).ToList();
-        StateHasChanged();
+        _operations.ForEach(x => x.Step = _operations.IndexOf(x) + 1 + InitializeCount);
+        Items = [.._instructions.Concat(_operations).OrderBy(x => x.Step)];
+        
+        await InvokeAsync(StateHasChanged);
     }
 
     private List<string> GetJumpSteps(bool withNext = false)
     {
         List<string> result = [];
         if (withNext) result.Add("następnej");
-        result.AddRange(_items.Where(x => x.Step > 0).Select(x => x.Step.ToString()).ToList());
+        result.AddRange(Items.Where(x => x.Step > 0).Select(x => x.Step.ToString()).ToList());
         result.Add("końca");
         return result;
     }
 
     private async Task DeleteItem(Instruction item)
     {
-        _items = _items.Where(x => x.Id != item.Id).ToList();
+        _operations = _operations.Where(x => x.Id != item.Id).ToList();
 
-
-
-        //Instruction? localItem = _items.FirstOrDefault(x => x.Id == item.Id);
-
-        //if (localItem != null)
-        //{
-        //    _items.Remove(localItem);
-        RefreshDropZone();
+       await RefreshDropZone();
     }
 
     private async Task RunProgram()
@@ -147,7 +173,7 @@ public partial class Home
         CleanProgram();
 
         _isRunning = true;
-        _interpreter.Run(_items.Where(i => i.Step > 0));
+        _interpreter?.Run(Items.Where(i => i.Step > 0));
     }
 
     private void CleanProgram()
@@ -158,7 +184,7 @@ public partial class Home
         {
             box.Value = 0;
         }
-        Konsole.Clear();
+        _konsole.Clear();
         _inputValue = null;
     }
 
@@ -169,45 +195,45 @@ public partial class Home
 
     private async Task NextStep()
     {
-        await _interpreter.ExecuteStep();
+        await _interpreter?.ExecuteStep()!;
     }
 
     private async Task InputValue()
     {
         if (_inputValue.HasValue)
         {
-            await _interpreter.SetBox(_curentBoxInput!, _inputValue.Value);
+            await _interpreter?.SetBox(_curentBoxInput!, _inputValue.Value)!;
             _isInputingValue = false;
         }
     }
 
-    private void AddToConsole(object? sender, KonsoleItemArgs e)
+    private void AddToConsole(object? sender, KonsoleItemArgs? e)
     {
         if (e == null)
             return;
 
-        if (!Konsole.Any())
+        if (!_konsole.Any())
         {
-            Konsole.Add(new KonsoleItemArgs(e.IsInput, e.Text));
+            _konsole.Add(new KonsoleItemArgs(e.IsInput, e.Text));
             return;
         }
 
-        if (Konsole.Last().IsInput != e.IsInput)
+        if (_konsole.Last().IsInput != e.IsInput)
         {
-            Konsole.Add(new KonsoleItemArgs(e.IsInput, e.Text));
+            _konsole.Add(new KonsoleItemArgs(e.IsInput, e.Text));
             return;
         }
 
         if (e.IsNewLine)
         {
-            Konsole.Add(new KonsoleItemArgs(e.IsInput, e.Text));
+            _konsole.Add(new KonsoleItemArgs(e.IsInput, e.Text));
             return;
         }
 
         if (e.IsInput)
-            Konsole.Last().Text += "<br />";
+            _konsole.Last().Text += "<br />";
 
-        Konsole.Last().Text += e.Text;
+        _konsole.Last().Text += e.Text;
     }
 
     private void FinishProgram(object? sender, bool isFail)
@@ -218,6 +244,6 @@ public partial class Home
 
     private async Task AutoRun()
     {
-        await _interpreter.Run(_items.Where(i => i.Step > 0), true);
+        await _interpreter?.Run(Items.Where(i => i.Step > 0), true)!;
     }
 }
